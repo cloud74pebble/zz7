@@ -17,6 +17,11 @@
 #define ANIM_DELAY 0
 #define ANI_STEPS 7
 
+#define XKEY_VIBE_BT 0
+#define XKEY_VIS_DATE 1
+#define XKEY_VIS_DOW 2
+#define XKEY_VIS_BAT 3
+
 #define BRANDING true
 
 //Windows und Layer
@@ -36,19 +41,36 @@ static GBitmap *s_bgani_bitmap;
 static GBitmap *s_logo_bitmap;
 static GFont s_time_font;
 static GFont s_date_font;
-static GFont s_bat_font;
 
+//Animation
 static PropertyAnimation *s_box_animation;
-
 static int s_current_stage = 0;
 
 // Function prototype 
 static void next_animation();
+static void PerformConfig(DictionaryIterator *iter, uint32_t iKEY);
+
 //Funktionen die in MainWindow genutzt werden
 static void update_hour() {
   layer_mark_dirty(s_bg_layer);
 }
 static void update_time() {
+  
+  bool bDow = persist_exists(XKEY_VIS_DOW) ? persist_read_bool(XKEY_VIS_DOW) : true;
+  bool bDate = persist_exists(XKEY_VIS_DATE) ? persist_read_bool(XKEY_VIS_DATE) : true;
+
+  char cDate[7] = "";
+  if (bDate) {strcat(cDate, "%d. %B");}
+  char cDow[3] = "";
+  if (bDow) {strcat(cDow, "%a");} 
+  
+  char cDateFormat[13] = "";
+  
+  strcat(cDateFormat, cDate);
+  strcat(cDateFormat, "%n");
+  strcat(cDateFormat, cDow);
+  
+  
   // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
@@ -62,7 +84,7 @@ static void update_time() {
   strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ?
                                           "%H:%M" : "%I:%M", tick_time);
   static char s_bufferd[30];
-  strftime(s_bufferd, sizeof(s_bufferd),  "%d. %B%n%a", tick_time);
+  strftime(s_bufferd, sizeof(s_bufferd), cDateFormat, tick_time);
   
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
@@ -72,7 +94,7 @@ static void update_time() {
 
 //Funktionen MainWindow
 static void draw_background(Layer *layer, GContext *ctx) {
-APP_LOG(APP_LOG_LEVEL_INFO, "Draw BG");
+
   // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
@@ -387,13 +409,40 @@ static void next_animation() {
  
 }
 
+//Settings verarbeiten
+static void PerformConfig(DictionaryIterator *iter, uint32_t iKEY) {
+  Tuple *x_t = dict_find(iter, iKEY);
+  if(x_t && x_t->value->int32 > 0) {
+    persist_write_bool(iKEY, true);
+    APP_LOG(APP_LOG_LEVEL_INFO, "KEY %d ist TRUE", (int)iKEY);
+  } else {
+    persist_write_bool(iKEY, false);
+    APP_LOG(APP_LOG_LEVEL_INFO, "KEY %d ist FALSE", (int)iKEY);
+  }
+}
+static void message_dropped(AppMessageResult reason, void *context){
+   APP_LOG(APP_LOG_LEVEL_INFO, "DROPPED! Code <%d>", reason);
+}
+static void config_handler(DictionaryIterator *iter, void *context) {
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Verarbeite Config!");
+  
+  //Settings verarbeiten und speichern
+  PerformConfig(iter, XKEY_VIBE_BT);
+  PerformConfig(iter, XKEY_VIS_DATE);
+  PerformConfig(iter, XKEY_VIS_DOW);
+  PerformConfig(iter, XKEY_VIS_BAT);
+  
+  update_time();
+
+}
+
 //Main Window
 static void main_window_load(Window *window) {
 
   // Schriftarten initialisieren
-  s_bat_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BAT_09));
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_BOND_28));
-  s_date_font = fonts_load_custom_font(fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
   
   // Get information about the Window
   Layer *window_layer = window_get_root_layer(window);
@@ -424,7 +473,7 @@ static void main_window_load(Window *window) {
   text_layer_set_background_color(s_bat_layer, GColorClear);
   text_layer_set_text_color(s_bat_layer, GColorBlack);
   text_layer_set_text_alignment(s_bat_layer, GTextAlignmentCenter);
-  text_layer_set_font(s_bat_layer, s_bat_font);
+  //text_layer_set_font(s_bat_layer, s_bat_font);
   text_layer_set_text(s_bat_layer, "4");
   
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -452,7 +501,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bgbox_layer));
 
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
-  layer_add_child(window_layer, text_layer_get_layer(s_bat_layer));
+  //layer_add_child(window_layer, text_layer_get_layer(s_bat_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
   layer_add_child(window_layer, s_box2_layer);
   layer_add_child(window_layer, s_box_layer);
@@ -461,13 +510,12 @@ static void main_window_load(Window *window) {
   //Uhrzeit aktualisieren
   update_time();
   update_hour();
-
+ 
 }
 static void main_window_unload(Window *window) {
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
   fonts_unload_custom_font(s_date_font);
-  fonts_unload_custom_font(s_bat_font);
   
   layer_destroy(s_bg_layer);
   layer_destroy(s_box_layer);
@@ -488,18 +536,13 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static void focus_handler(bool inFocus) {
-  
-  APP_LOG(APP_LOG_LEVEL_INFO, "infocus");
-    
+
   layer_mark_dirty(s_bg_layer);
   layer_set_hidden(s_bg_layer, true);
   layer_set_hidden(text_layer_get_layer(s_time_layer), true);
   layer_set_hidden(text_layer_get_layer(s_date_layer), true);
-
-
-  
+ 
   if (inFocus) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "TRUE");
     animation_unschedule_all();
     s_current_stage = ANI_STEPS - 2;
     psleep(1000);
@@ -512,16 +555,15 @@ static void focus_handler(bool inFocus) {
 }
 
 static void bt_handler(bool connected) {
+  bool bVibe = persist_exists(XKEY_VIBE_BT) ? persist_read_bool(XKEY_VIBE_BT) : true;
   if (connected) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Phone is connected!");
     text_layer_set_text_color(s_time_layer, GColorRed);
-    vibes_short_pulse();
+    if (bVibe) {vibes_short_pulse();}
   } else {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Phone is not connected!");
     text_layer_set_text_color(s_time_layer, GColorBlack);
-    vibes_long_pulse();
+    if (bVibe) {vibes_long_pulse();}
   }
-  layer_mark_dirty((Layer *)s_time_layer);
+  layer_mark_dirty(text_layer_get_layer(s_time_layer));
   
 }
 
@@ -532,7 +574,7 @@ static void init() {
   //localisation
   setlocale(LC_ALL, "");
     
-  // Create GBitmap
+  // Create GBitmaps
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BOND_BG);
   s_bgani_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BOND_ANI);
   s_logo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_LOGO);
@@ -552,23 +594,30 @@ static void init() {
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
 
+  //Verarbeite Messages
+  app_message_register_inbox_dropped(message_dropped);
+  app_message_register_inbox_received(config_handler);
+  app_message_open(APP_MESSAGE_INBOX_SIZE_MINIMUM, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
+
+  
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   
   //Register Bluetooth
-  #ifdef PBL_SDK_2
-  bluetooth_connection_service_subscribe(bt_handler);
-  #elif PBL_SDK_3
   connection_service_subscribe((ConnectionHandlers) {
     .pebble_app_connection_handler = bt_handler
   });
-  #endif
+  
+  //App-Focus handler
   app_focus_service_subscribe_handlers((AppFocusHandlers){
     .will_focus = focus_handler,
   });
   
-  // Start animation loop
+
+  // Starte animation
   next_animation();
+  
+
 
 }
 
@@ -577,14 +626,10 @@ static void deinit() {
   animation_unschedule_all();
   
   tick_timer_service_unsubscribe();
-  #ifdef PBL_SDK_2
-  bluetooth_connection_service_unsubscribe();
-  #elif PBL_SDK_3
   connection_service_unsubscribe();
-  #endif
-  
   app_focus_service_unsubscribe();
-  
+  app_message_deregister_callbacks();
+    
   // Destroy Window
   window_destroy(s_main_window);
      

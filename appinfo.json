@@ -1,19 +1,18 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "KEY_VIBE_BT": 0,
+        "KEY_VIS_BAT": 3,
+        "KEY_VIS_DATE": 1,
+        "KEY_VIS_DOW": 2
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "Wolke7",
     "longName": "ZeroZero7",
     "projectType": "native",
     "resources": {
         "media": [
-            {
-                "characterRegex": "1234567b",
-                "file": "fonts/pebb_icons.ttf",
-                "name": "FONT_BAT_18",
-                "type": "font"
-            },
             {
                 "file": "images/spectre.png",
                 "name": "IMAGE_LOGO",
@@ -45,6 +44,10 @@
                 "characterRegex": "[0-9:]",
                 "file": "fonts/bond.ttf",
                 "name": "FONT_BOND_28",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
                 "trackingAdjust": 1,
                 "type": "font"
             },
@@ -52,6 +55,10 @@
                 "characterRegex": "[0-9:]",
                 "file": "fonts/bond.ttf",
                 "name": "FONT_BOND_42",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
                 "trackingAdjust": 1,
                 "type": "font"
             },
