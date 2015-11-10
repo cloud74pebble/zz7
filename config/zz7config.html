@@ -121,7 +121,8 @@
     // Load any previously saved configuration, if available
     if(localStorage['vibe_bt']) {
       vibebtcheckbox.checked = JSON.parse(localStorage['vibe_bt']);
-    }
+    };
+    
     if(localStorage['visibility_date']) {
       visibilitydatecheckbox.checked = JSON.parse(localStorage['visibility_date']);
       visibilitydowcheckbox.checked = JSON.parse(localStorage['visibility_dow']);
