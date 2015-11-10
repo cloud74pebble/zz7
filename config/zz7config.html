@@ -18,7 +18,7 @@
   </head>
 
   <body>
-    <h1 class='title'>ZeroZero7 Configuration</h1>
+    <h1 class='title'>ZeroZero7 Watchface</h1>
 
     <div class='item-container'>
       <div class='item-container-content'>
@@ -33,15 +33,15 @@
       <div class='item-container-content'>
         <label class='item'>
           Show Date
-          <input id='visibility_date' type='checkbox' class='item-toggle'>
+          <input id='visibility_date_checkbox' type='checkbox' class='item-toggle' checked>
         </label>
         <label class='item'>
           Show day of week
-          <input id='visibility_dow' type='checkbox' class='item-toggle'>
+          <input id='visibility_dow_checkbox' type='checkbox' class='item-toggle' checked>
         </label>
         <label class='item'>
           Show battery
-          <input id='visibility_bat' type='checkbox' class='item-toggle'>
+          <input id='visibility_bat_checkbox' type='checkbox' class='item-toggle' >
         </label>
     
       </div>
@@ -55,7 +55,7 @@
       <div class='item-container-content'>
         <label class='item'>
           Vibe on BT (dis)connect
-          <input id='vibe_bt' type='checkbox' class='item-toggle'>
+          <input id='vibe_bt_checkbox' type='checkbox' class='item-toggle'  checked>
         </label>
       </div>
     </div>
@@ -66,13 +66,14 @@
       </div>
     </div>
   </body>
+  
   <script>
   function getConfigData() {
-    var vibebtcheckbox = document.getElementById('vibe_bt_checkbox');
+    
+	var vibebtcheckbox = document.getElementById('vibe_bt_checkbox');
     var visibilitydatecheckbox = document.getElementById('visibility_date_checkbox');
     var visibilitydowcheckbox = document.getElementById('visibility_dow_checkbox');
     var visibilitybatcheckbox = document.getElementById('visibility_bat_checkbox');
-
  
     var options = {
       'vibe_bt': vibebtcheckbox.checked,
@@ -80,17 +81,16 @@
       'visibility_dow': visibilitydowcheckbox.checked,
       'visibility_bat': visibilitybatcheckbox.checked
     };
-
+	
     // Save for next launch
     localStorage['vibe_bt'] = options['vibe_bt'];
     localStorage['visibility_date'] = options['visibility_date'];
     localStorage['visibility_dow'] = options['visibility_dow'];
     localStorage['visibility_bat'] = options['visibility_bat'];
-
     console.log('Got options: ' + JSON.stringify(options));
     return options;
   }
-
+  
   function getQueryParam(variable, defaultValue) {
     var query = location.search.substring(1);
     var vars = query.split('&');
@@ -106,19 +106,18 @@
   var submitButton = document.getElementById('submit_button');
   submitButton.addEventListener('click', function() {
     console.log('Submit');
-
     // Set the return URL depending on the runtime environment
     var return_to = getQueryParam('return_to', 'pebblejs://close#');
     document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
   });
-
   (function() {
     var vibebtcheckbox = document.getElementById('vibe_bt_checkbox');
     var visibilitydatecheckbox = document.getElementById('visibility_date_checkbox');
     var visibilitydowcheckbox = document.getElementById('visibility_dow_checkbox');
     var visibilitybatcheckbox = document.getElementById('visibility_bat_checkbox');
-
-    // Load any previously saved configuration, if available
+    
+	
+	// Load any previously saved configuration, if available
     if(localStorage['vibe_bt']) {
       vibebtcheckbox.checked = JSON.parse(localStorage['vibe_bt']);
     };
@@ -128,6 +127,7 @@
       visibilitydowcheckbox.checked = JSON.parse(localStorage['visibility_dow']);
       visibilitybatcheckbox.checked = JSON.parse(localStorage['visibility_bat']);
     }
+	
   })();
   </script>
 </html>
