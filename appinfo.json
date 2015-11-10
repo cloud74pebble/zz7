@@ -1,0 +1,81 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Wolke7",
+    "longName": "ZeroZero7",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "characterRegex": "1234567b",
+                "file": "fonts/pebb_icons.ttf",
+                "name": "FONT_BAT_18",
+                "type": "font"
+            },
+            {
+                "file": "images/spectre.png",
+                "name": "IMAGE_LOGO",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/bondbg.png",
+                "name": "IMAGE_BOND_ANI",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/bg_hour.png",
+                "name": "IMAGE_BOND_BG",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "characterRegex": "[0-9:]",
+                "file": "fonts/bond.ttf",
+                "name": "FONT_BOND_28",
+                "trackingAdjust": 1,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:]",
+                "file": "fonts/bond.ttf",
+                "name": "FONT_BOND_42",
+                "trackingAdjust": 1,
+                "type": "font"
+            },
+            {
+                "file": "images/icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_ICON",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "ZeroZero7",
+    "targetPlatforms": [
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "29e69c74-f5fe-4023-9c20-7a58ace71b84",
+    "versionLabel": "1.1",
+    "watchapp": {
+        "watchface": true
+    }
+}
